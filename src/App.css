@@ -1,0 +1,56 @@
+#main-title {
+  margin-top: 25px;
+  box-shadow: 0 0 1em 1em #ccc;
+  text-align: center;
+  color: white;
+  background-color: lightslategrey
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Corben', Georgia, Times, serif;
+}
+body {
+  background-image: url("assets/background.jpg");
+}
+#output-box {
+  border: 1px lightgrey solid;
+  box-shadow: 0 0 1em 1em #ccc;
+  position: relative;
+  top: 150px;
+  height: 600px;
+  background-color: white;
+  margin-top: -75px;
+}
+#input {
+  position: absolute;
+  padding: 10px;
+  border: none;
+  border-bottom: solid 2px #c9c9c9;
+  transition: border 0.3s;
+  bottom: 35px;
+  width: 500px;
+  left: 50px
+}
+#bob-main-img {
+  position: absolute;
+  right: 25px;
+  height: 200px;
+  top: 200px;
+  margin-left: 50px;
+  border: 1px #c9c9c9 solid;
+  /* box-shadow: 0 0 1em 1em #c9c9c9; */
+}
+#sign-in-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+#help-button {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+/* #output {
+  position: absolute;
+  margin-top: 25px;
+  left: 10px;
+} */
