@@ -49,6 +49,83 @@ body {
   right: 10px;
   bottom: 10px;
 }
+#pop-up-container1 {
+  margin-left: -250px;
+  margin-top: 200px;
+  width : 250px;
+  height: 400px;
+  background-color: white;
+  box-shadow: 0 0 1em 1em #ccc;
+  visibility: hidden;
+}
+#pop-up-container2 {
+  position: absolute;
+  margin-top: 100px;
+  margin-left: 1050px;
+  width : 250px;
+  height: 400px;
+  background-color: white;
+  box-shadow: 0 0 1em 1em #ccc;
+  /* visibility: hidden; */
+}
+#pop-up-title {
+  margin-left: 50px;
+  margin-top: 15px;
+}
+#pop-text-username {
+  margin-left: 5px;
+  margin-top: 35px;
+  display: inline-block;
+}
+#pop-text-password {
+  margin-left: 5px;
+  margin-top: 30px;
+  display: inline-block;
+}
+#verify-sign-in-button {
+  margin-left: 85px;
+  margin-top: 10px;
+}
+#verify-sign-up-button {
+  margin-left: 85px;
+  margin-top: 10px;
+}
+#username-field {
+  display: inline;
+}
+#username-input {
+  width: 125px;
+  display: inline;
+  margin-left: 2px;
+}
+#username-input-signup {
+  width: 125px;
+  display: inline;
+  margin-left: 5px;
+}
+#password-input {
+  width: 125px;
+  display: inline;
+  margin-left: 5px;
+}
+#password-input-signup {
+  width: 125px;
+  display: inline;
+  margin-left: 2px;
+}
+#needAccount {
+  margin-left: 60px;
+  margin-top: 40px;
+}
+#sign-up-button {
+  margin-left: 85px;
+}
+.show {
+  visibility: visible;
+}
+.hide {
+  visibility: hidden;
+}
 /* #output {
   position: absolute;
   margin-top: 25px;
