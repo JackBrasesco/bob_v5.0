@@ -1,11 +1,14 @@
 import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ReactAudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Bob from './bob.jpg'
+import Alarm from './alarm.wav'
 const annyang = require('annyang');
 
 class BobLogic extends React.Component {
@@ -19,6 +22,12 @@ class BobLogic extends React.Component {
         input: "",
         isSignIn: false,
         isSignUp: false,
+        isTimer: false,
+        timerLength: 0,
+        timerMinutes: 0,
+        timerSeconds: 0,
+        timerHours: 0,
+        timerDisplay: "",
         usernameinput: "",
         passwordinput: "",
         usernameinputsi: "",
@@ -87,6 +96,21 @@ class BobLogic extends React.Component {
       nueva: -1,
       what: -1,
       name: -1,
+      lookup: -1,
+      look: -1,
+      search: -1,
+      for: -1,
+      image: -1,
+      images: -1,
+      youtube: -1,
+      translate: -1,
+      spanish: -1,
+      conjugate: -1,
+      say: -1,
+      define: -1,
+      synonym: -1,
+      timer: -1,
+      set: -1,
     }
     if (this.state.ouput1 == "") {
       this.setState({output1: "You: " + input})
@@ -141,13 +165,44 @@ class BobLogic extends React.Component {
         wordBank.what = i
       } else if (inputArr[i] =="name") {
         wordBank.name = i
+      } else if (inputArr[i] =="lookup") {
+        wordBank.lookup = i
+      } else if (inputArr[i] =="look") {
+        wordBank.look = i
+      } else if (inputArr[i] =="search") {
+        wordBank.search = i
+      } else if (inputArr[i] =="for") {
+        wordBank.for = i
+      } else if (inputArr[i] =="image") {
+        wordBank.image = i
+      } else if (inputArr[i] =="Images") {
+        wordBank.images = i
+      }  else if (inputArr[i] =="YouTube") {
+        wordBank.youtube = i
+      } else if (inputArr[i] =="translate") {
+        wordBank.translate = i
+      } else if (inputArr[i] =="Spanish") {
+        wordBank.spanish = i
+      } else if (inputArr[i] =="conjugate") {
+        wordBank.conjugate = i
+      } else if (inputArr[i] =="say") {
+        wordBank.say = i
+      }  else if (inputArr[i] =="Define") {
+        wordBank.define = i
+      } else if (inputArr[i] =="synonym") {
+        wordBank.synonym = i
+      }  else if (inputArr[i] =="timer") {
+        wordBank.timer = i
+      }  else if (inputArr[i] =="set") {
+        wordBank.set = i
       }
     }
     if (wordBank.whats > -1 && wordBank.up > -1 && wordBank.up > wordBank.whats) {
       console.log("salutations")
       this.bobResponseToList("salutations!")
-      .then(res => console.log(res))
-    } else if (wordBank.check > -1 && wordBank.my > -1 && wordBank.email > -1) {
+    }
+
+    else if (wordBank.check > -1 && wordBank.my > -1 && wordBank.email > -1) {
       if (wordBank.nueva > -1) {
         this.bobResponseToList("Opening up your Nueva email")
         this.openInNewTab("https://mail.google.com/mail/u/2/#inbox")
@@ -164,7 +219,9 @@ class BobLogic extends React.Component {
         this.openInNewTab("https://mail.google.com/mail/u/1/#inbox")
 
       }
-    } else if (wordBank.go > -1 && wordBank.to > -1 && wordBank.to > wordBank.go) {
+    }
+
+     else if (wordBank.go > -1 && wordBank.to > -1 && wordBank.to > wordBank.go) {
       let siteToGoTo = "null"
       if (inputArr.length > 2) {
         inputArr.shift()
@@ -185,18 +242,194 @@ class BobLogic extends React.Component {
       }else if (siteToGoTo == "piskelapp") {
         this.bobResponseToList("Opening Piskel App!")
         this.openInNewTab("https://www.piskelapp.com/")
+      } else if (siteToGoTo == "calendar") {
+        this.bobResponseToList("going to your calendar!")
+        this.openInNewTab("https://calendar.google.com/calendar/r")
+      } else if (siteToGoTo == "mycalendar") {
+        this.bobResponseToList("going to your calendar!")
+        this.openInNewTab("https://calendar.google.com/calendar/r")
       } else {
         this.bobResponseToList("let's go to that website")
         this.openInNewTab("https://" + siteToGoTo)
       }
-    } else if (wordBank.what > -1 || wordBank.whats > -1 && wordBank.my > -1 && wordBank.name > -1) {
+    }
+
+    else if (wordBank.what > -1 && wordBank.my > -1 && wordBank.name > -1 || wordBank.whats > -1 && wordBank.my > -1 && wordBank.name > -1) {
       console.log("hey")
       this.bobResponseToList(this.state.account.username)
+    }
+
+    else if (wordBank.lookup > -1 || wordBank.look > -1 && wordBank.up > -1) {
+      if (wordBank.youtube > -1) {
+        inputArr.shift()
+        if (wordBank.look > -1 && wordBank.up >-1) {
+          inputArr.shift()
+        }
+        inputArr.pop()
+        inputArr.pop()
+        this.bobResponseToList("searching youtube for that video. . .")
+        this.openInNewTab("https://www.youtube.com/results?search_query=" + inputArr.join("+"))
+      } else if (wordBank.image > -1 || wordBank.images > -1) {
+        inputArr.shift()
+        if (wordBank.look > -1 && wordBank.up >-1) {
+          inputArr.shift()
+        }
+        inputArr.pop()
+        inputArr.pop()
+        inputArr.pop()
+        this.bobResponseToList("looking up some images. . .")
+        this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+") + "&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiS5JWU_qzpAhWcHjQIHU4NA2gQ_AUoA3oECBMQBQ&biw=1920&bih=969")
+      } else {
+      inputArr.shift()
+      if (wordBank.look > -1 && wordBank.up >-1) {
+        inputArr.shift()
+      }
+      this.bobResponseToList("looking that up. . .")
+      this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
+      }
+    }
+
+    else if (wordBank.search > -1) {
+      console.log(wordBank)
+      if (wordBank.youtube > -1) {
+        inputArr.shift()
+        if (wordBank.for > -1) {
+          inputArr.shift()
+        }
+        inputArr.pop()
+        inputArr.pop()
+        this.bobResponseToList("searching youtube for that video. . .")
+        this.openInNewTab("https://www.youtube.com/results?search_query=" + inputArr.join("+"))
+      } else if (wordBank.image > -1 || wordBank.images > -1) {
+        inputArr.shift()
+        if (wordBank.for > -1) {
+          inputArr.shift()
+        }
+        inputArr.pop()
+        inputArr.pop()
+        inputArr.pop()
+        this.bobResponseToList("searching for some images. . .")
+        this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+") + "&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiS5JWU_qzpAhWcHjQIHU4NA2gQ_AUoA3oECBMQBQ&biw=1920&bih=969")
+      } else {
+      inputArr.shift()
+      if (wordBank.for > -1) {
+        inputArr.shift()
+      }
+      this.bobResponseToList("searching the web. . .")
+      this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
+    }
+  }
+
+  else if (wordBank.translate > -1) {
+    if (wordBank.spanish > -1) {
+      inputArr.shift()
+      inputArr.pop()
+      inputArr.pop()
+      this.bobResponseToList("translating!")
+      this.openInNewTab("https://www.spanishdict.com/translate/" + inputArr.join("%20"))
     } else {
+      this.bobResponseToList("translating!")
+      this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
+    }
+  }
+
+   else if (wordBank.conjugate > -1) {
+    this.bobResponseToList("conjugating")
+    inputArr.shift()
+    this.openInNewTab("https://www.spanishdict.com/conjugate/" + inputArr.join("%20"))
+  }
+
+  else if (wordBank.say > -1) {
+    inputArr.shift()
+    this.bobResponseToList(inputArr.join(" "))
+  }
+
+  else if (wordBank.define > -1) {
+    this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
+    console.log("define")
+  }
+
+  else if (wordBank.synonym > -1) {
+    this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
+    console.log("synonym")
+  }
+
+   else if (wordBank.set > -1 && wordBank.timer > -1) {
+    if (wordBank.set < wordBank.timer && wordBank.for > -1 && wordBank.for > wordBank.timer) {
+      inputArr.shift()
+      inputArr.shift()
+      inputArr.shift()
+      inputArr.shift()
+      console.log(inputArr)
+      if (!this.state.isTimer) {
+      for (let i=0; i<inputArr.length; i++) {
+        if (inputArr[i + 1] == "hours" || inputArr[i+1] == "hour") {
+          this.setState({timerHours: inputArr[i]})
+        } else if (inputArr[i + 1] == "minutes" || inputArr[i+1] == "minute") {
+          this.setState({timerMinutes: inputArr[i]})
+        } else if (inputArr[i+1] == "seconds" || inputArr[i+1] == "second") {
+          this.setState({timerSeconds: inputArr[i]})
+        }
+      }
+        this.setState({isTimer: true})
+        let _this = this
+        setTimeout(function() {_this.renderTimer()},50)
+        let timerCountdown = setInterval(function() {_this.decreaseTimer()},1000)
+        let timeToMilli = (this.state.timerHours * 3600000) + (this.state.timerMinutes * 60000) + (this.state.timerSeconds * 1000)
+        setTimeout(function() {
+          clearInterval(timerCountdown)
+        },timeToMilli + 1051)
+      } else {
+        this.bobResponseToList("You cannot have two timers going at once.")
+      }
+    } else {
+      this.bobResponseToList("that is the improper way to set up a timer, please say 'set a timer for ________'")
+    }
+  } else {
+      console.log(wordBank)
+      console.log(this.state.timerHours + " hours, " +this.state.timerMinutes+ " minutes, " + this.state.timerSeconds + " seconds")
+
       this.bobResponseToList("Response not expected, please take the time to program the desired response")
     }
     console.log(inputArr)
+}
+  decreaseTimer() {
+    if (this.state.isTimer) {
+    if (this.state.timerHours > 0 && this.state.timerMinutes == 0 && this.state.timerSeconds == 0) {
+      this.setState({timerMinutes: 59})
+      this.setState({timerSeconds: 59})
+      this.setState({timerHours: this.state.timerHours - 1})
+      this.renderTimer()
+    } else if (this.state.timerMinutes > 0 && this.state.timerSeconds == 0) {
+      this.setState({timerSeconds: 59})
+      this.setState({timerMinutes: this.state.timerMinutes - 1})
+      this.renderTimer()
+    } else if (this.state.timerSeconds > 0) {
+      this.setState({timerSeconds: this.state.timerSeconds - 1})
+      this.renderTimer()
+    } else {
+      this.setState({isTimer: false})
+      this.bobResponseToList('Timer complete!')
+      let timerPlayer = new Audio(Alarm)
+      timerPlayer.play()
+    }
+  } else {
+    this.bobResponseToList("Timer complete!")
   }
+  }
+  renderTimer() {
+    let renderHour = this.state.timerHours
+    let renderMinute = this.state.timerMinutes
+    let renderSecond = this.state.timerSeconds
+      if (this.state.timerMinutes < 10) {
+        renderMinute = "0" + this.state.timerMinutes
+      }
+      if (this.state.timerSeconds < 10) {
+        renderSecond = "0" + this.state.timerSeconds
+      }
+      this.setState({timerDisplay: renderHour + ":" + renderMinute + ":" + renderSecond})
+    }
+
   componentDidMount() {
     var commands = {
       'hey bob *input': this.generateResponse.bind(this),
@@ -326,6 +559,10 @@ class BobLogic extends React.Component {
           </div>
           <Button id="verify-sign-up-button" variant="info" onClick={this.signUpButtonOnClick.bind(this)}>Sign up!</Button>
         </div>
+        <div className={this.state.isTimer ? 'show' : 'hide'} id="pop-up-container-timer">
+          <h1 id="pop-up-title">Timer</h1>
+          <p id="pop-up-text-timer">{this.state.timerDisplay}</p>
+        </div>
       </div>
       </>
     )
@@ -347,10 +584,6 @@ class App extends React.Component {
       <Container>
         <Row>
           <Col xs={1}>
-            <div id="pop-up-container1">
-              <h1 className="pop-up-title">Timer</h1>
-              <p id="pop-up1-text"> 3:34</p>
-            </div>
           </Col>
           <Col xs={10}>
            <BobLogic />

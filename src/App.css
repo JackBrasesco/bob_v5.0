@@ -49,14 +49,14 @@ body {
   right: 10px;
   bottom: 10px;
 }
-#pop-up-container1 {
-  margin-left: -250px;
-  margin-top: 200px;
+#pop-up-container-timer {
+  position: absolute;
+  margin-left: -400px;
+  margin-top: 100px;
   width : 250px;
   height: 400px;
   background-color: white;
   box-shadow: 0 0 1em 1em #ccc;
-  visibility: hidden;
 }
 #pop-up-container2 {
   position: absolute;
@@ -69,7 +69,7 @@ body {
   /* visibility: hidden; */
 }
 #pop-up-title {
-  margin-left: 50px;
+  margin-left: 60px;
   margin-top: 15px;
 }
 #pop-text-username {
@@ -119,6 +119,10 @@ body {
 }
 #sign-up-button {
   margin-left: 85px;
+}
+#pop-up-text-timer {
+  margin-left: 15px;
+  font-size: 65px;
 }
 .show {
   visibility: visible;
