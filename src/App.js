@@ -111,6 +111,11 @@ class BobLogic extends React.Component {
       synonym: -1,
       timer: -1,
       set: -1,
+      add: -1,
+      notes: -1,
+      read: -1,
+      delete: -1,
+      note: -1,
     }
     if (this.state.ouput1 == "") {
       this.setState({output1: "You: " + input})
@@ -195,8 +200,20 @@ class BobLogic extends React.Component {
         wordBank.timer = i
       }  else if (inputArr[i] =="set") {
         wordBank.set = i
+      }  else if (inputArr[i] =="notes") {
+        wordBank.notes = i
+      }  else if (inputArr[i] =="add") {
+        wordBank.add = i
+      }  else if (inputArr[i] =="read") {
+        wordBank.read = i
+      } else if (inputArr[i] =="delete") {
+        wordBank.delete = i
+      } else if (inputArr[i] =="note") {
+        wordBank.note = i
       }
     }
+
+
     if (wordBank.whats > -1 && wordBank.up > -1 && wordBank.up > wordBank.whats) {
       console.log("salutations")
       this.bobResponseToList("salutations!")
@@ -255,8 +272,8 @@ class BobLogic extends React.Component {
     }
 
     else if (wordBank.what > -1 && wordBank.my > -1 && wordBank.name > -1 || wordBank.whats > -1 && wordBank.my > -1 && wordBank.name > -1) {
-      console.log("hey")
-      this.bobResponseToList(this.state.account.username)
+      console.log(this.state.account.meta.notes)
+      this.bobResponseToList(this.state.account.meta.notes)
     }
 
     else if (wordBank.lookup > -1 || wordBank.look > -1 && wordBank.up > -1) {
@@ -385,7 +402,73 @@ class BobLogic extends React.Component {
     } else {
       this.bobResponseToList("that is the improper way to set up a timer, please say 'set a timer for ________'")
     }
-  } else {
+  }
+
+  else if (wordBank.add > -1 && wordBank.to > -1 && wordBank.notes > -1) {
+    inputArr.shift()
+    inputArr.pop()
+    inputArr.pop()
+    if (wordBank.my > -1 && wordBank.my == wordBank.notes -1) {
+      inputArr.pop()
+    }
+    if (this.state.account.username != "not logged in") {
+        let newNotes = this.state.account.meta.notes
+        console.log(newNotes)
+        if (newNotes.length == 0) {
+          newNotes.push(inputArr.join(" "))
+        } else {
+          newNotes = this.state.account.meta.notes.join(" ").split(',')
+          console.log(newNotes)
+          newNotes.push(inputArr.join(" "))
+        }
+        fetch("http://localhost:8080/addNoteToAccount", {
+          method: "put",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify([this.state.account.username,newNotes])
+        })
+        .then(res => res.text())
+        .then(body => this.updateAccount(body))
+
+    } else {
+      this.bobResponseToList("You must be signed in to make a note")
+    }
+  }
+
+  else if (wordBank.read > -1 && wordBank.notes > -1) {
+    fetch("http://localhost:8080/readNotes", {
+      method: "put",
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify([this.state.account.username])
+    })
+    .then(res => res.text())
+    .then(body => this.displayNotes(body))
+  }
+
+  else if (wordBank.delete > -1 && wordBank.note > -1) {
+    inputArr.shift()
+    inputArr.shift()
+    let noteToDeleteIndex = parseInt(inputArr[0]) - 1
+    console.log(noteToDeleteIndex)
+    let notes = this.state.account.meta.notes.join(" ").split(',')
+    console.log(notes)
+    let newNotes = []
+    for (let i=0;i<notes.length;i++) {
+      if (i != noteToDeleteIndex) {
+        console.log(notes[i])
+        newNotes.push(notes[i])
+      }
+    }
+    console.log(newNotes)
+    fetch("http://localhost:8080/addNoteToAccount", {
+      method: "put",
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify([this.state.account.username,newNotes])
+    })
+    .then(res => res.text())
+    .then(body => this.updateAccount(body))
+  }
+
+  else {
       console.log(wordBank)
       console.log(this.state.timerHours + " hours, " +this.state.timerMinutes+ " minutes, " + this.state.timerSeconds + " seconds")
 
@@ -393,6 +476,15 @@ class BobLogic extends React.Component {
     }
     console.log(inputArr)
 }
+  displayNotes(notes) {
+    this.bobResponseToList(this.state.account.meta.notes.join(", "))
+  }
+  updateAccount(body) {
+    console.log("updating account")
+    let newAcnt = JSON.parse(body)
+    this.setState({account: newAcnt})
+    console.log(this.state.account.meta.notes)
+  }
   decreaseTimer() {
     if (this.state.isTimer) {
     if (this.state.timerHours > 0 && this.state.timerMinutes == 0 && this.state.timerSeconds == 0) {

@@ -3,6 +3,7 @@ let accountModel = require('./schema/account');
 let historyModel = require('./schema/history');
 const server = '127.0.0.1:27017'
 const database = 'database'
+mongoose.set('useFindAndModify', false);
 
 class Database {
   constructor() {

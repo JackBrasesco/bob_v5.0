@@ -8,6 +8,29 @@ let cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
+
+app.put('/readNotes', function(req,res,next) {
+  let accountToSearchFor = req.body[0]
+  AcntModel.findOne({username: accountToSearchFor}, function(err,acnt) {
+    let notes = acnt.meta.notes
+    res.send(notes)
+  })
+})
+
+app.put('/addNoteToAccount', function(req,res,next) {
+  console.log("request recieved!" + req.body)
+  let usernamep = req.body[0]
+  req.body.shift()
+  let newNotes = req.body
+  console.log(newNotes)
+  async function updateAccount() {
+    let loadAcnt = await AcntModel.findOneAndUpdate({username: usernamep},{meta: {notes: newNotes}},{new: true})
+    return loadAcnt
+  }
+  updateAccount()
+  .then(acnt => res.send(acnt))
+})
+
 app.put('/getAccountByUsername', function(req,res,next) {
   let accountToSearchFor = req.body[0]
   let response = ''
@@ -34,7 +57,7 @@ app.put('/createAccount', function(req,res,next) {
         food: "I don't know your favorite food",
         number: 0,
       },
-      notes: [],
+      notes: ["test"],
       projects: [],
       commands: [],
     }
