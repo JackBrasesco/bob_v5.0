@@ -3,23 +3,129 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ReactAudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import Speech from 'speak-tts';
+import jsHue from 'jshue'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Bob from './bob.jpg'
 import Alarm from './alarm.wav'
 const annyang = require('annyang');
+let hue = jsHue();
+let bridge = hue.bridge('192.168.1.80');
+let user = bridge.user("SLNNqvOYSKUZLfDIMpmI9oz0ZAD2R7n0UAyZ1Lhi")
+const speech = new Speech()
+speech.init().then((data) => {
+    // The "data" object contains the list of available voices and the voice synthesis params
+    console.log("Speech is ready, voices are available", data)
+}).catch(e => {
+    console.error("An error occured while initializing : ", e)
+})
+
+class Reminder extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+     message: "message",
+     time: new Date(0,0,0,0,0,0,0),
+     isRepeating: false,
+     isRendering: false,
+     currentTime: new Date(),
+     // timerCountdown: setInterval(function() {this.decreaseTimer()},1000),
+     // decreaseTimer: function() {
+     //   let currentTimer = this.state.time
+     //   this.setState({time: currentTimer - 1000})
+     // }
+   }
+   console.log("hello!")
+   while (this.state.time > 0) {
+     console.log("hi")
+   }
+  }
+
+  componentDidMount() {
+    console.log("componentDidMount!")
+    return new Promise(resolve => (
+      resolve('go!')
+    ))
+  }
+  stateSetter(message,time) {
+    let _this = this
+    async function holdup() {
+      let didMount = await _this.componentDidMount()
+      if (didMount == "go!") {
+        this.setState({message: message,time: time,isRendering: true})
+      }
+    }
+  }
+  decreaseTimer() {
+    let currentTimer = this.state.time
+    this.setState({time: currentTimer - 1000})
+  }
+
+  timerShutdown() {
+    clearInterval(this.state.timerCountdown)
+  }
+
+  showReminder() {
+    this.setState({isRendering: true})
+  }
+
+  closeReminderButtonOnClick() {
+    this.setState({isRendering: false})
+  }
+
+  setRepeating() {
+    this.setState({isRepeating: true})
+  }
+
+  unsetRepeating() {
+    this.setState({isRepeating: false})
+  }
+
+  render() {
+    return(
+      <div className={this.state.isRendering ? 'show' : 'hide'} id="pop-up-container2">
+        <h1 id="pop-up-title">Reminder</h1>
+        <p id="pop-up-text-reminder">{this.state.message}</p>
+        <Button id="close-reminder-button" variant="info" onClick={this.closeReminderButtonOnClick.bind(this)}>close reminder.</Button>
+      </div>
+    )
+  }
+}
 
 class BobLogic extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+        light1: {
+          on: false,
+        },
+        light2: {
+          on: false,
+        },
+        light3: {
+          on: false,
+        },
+        light4: {
+          on: false,
+        },
         output1: "",
         output2: "",
         output3: "",
         output4: "",
         input: "",
+        isProjectDisplay: false,
+        currentProject: {
+          title: "Bot Bob Projects",
+          time: "3 hours",
+          todo: ["make it render properly","add new project to acnt","load project from acnt","delete project from acnt"],
+          todoRender: "hi!",
+          progress: ["make it render properly",["todo renders","progress renders"],"add new project to acnt",["add keywords to indexOf brew","instatiate new project with title","add new project w/ title in express","update account in mongo","update account to reflect new project","add inputs for time, todo, and progresses","hook those inputs into account system"]],
+          progressRender: "hello"
+        },
         isSignIn: false,
         isSignUp: false,
         isTimer: false,
@@ -28,6 +134,9 @@ class BobLogic extends React.Component {
         timerSeconds: 0,
         timerHours: 0,
         timerDisplay: "",
+        reminderHour: 0,
+        reminderMinute: 0,
+        reminderArray: [],
         usernameinput: "",
         passwordinput: "",
         usernameinputsi: "",
@@ -50,10 +159,15 @@ class BobLogic extends React.Component {
   }
   cleanText(e) {
     e.preventDefault()
+
     this.generateResponse(this.state.input);
     this.setState({input: ""})
   }
   bobResponseToList(output) {
+
+    speech.speak({
+        text: output,
+    })
     if (this.state.ouput1 == "") {
       this.setState({output1: "Bob: " + output})
     } else if (this.state.output2 == "") {
@@ -79,6 +193,21 @@ class BobLogic extends React.Component {
     win.focus();
   }
   generateResponse(input) {
+    console.log(input)
+    //lights flash as indicator that bob is responding
+    user.setLightState(2, {alert: "select"}).then(data => {
+      console.log("horray!")
+    })
+    user.setLightState(1, {alert: "select"}).then(data => {
+      console.log("horray!")
+    })
+    user.setLightState(3, {alert: "select"}).then(data => {
+      console.log("horray!")
+    })
+    user.setLightState(4, {alert: "select"}).then(data => {
+      console.log("horray!")
+    })
+    //this wordBank is a list of words that bob is looking out for that can trigger commands, the whole system is bascially a home brewed version of .indexOf
     let wordBank = {
       whats: -1,
       up: -1,
@@ -116,7 +245,32 @@ class BobLogic extends React.Component {
       read: -1,
       delete: -1,
       note: -1,
+      remind: -1,
+      me: -1,
+      at: -1,
+      turn: -1,
+      light: -1,
+      on: -1,
+      off: -1,
+      red: -1,
+      blue: -1,
+      gold: -1,
+      green: -1,
+      pink: -1,
+      one: -1,
+      two: -1,
+      three: -1,
+      four: -1,
+      brightness: -1,
+      full: -1,
+      half: -1,
+      projects: -1,
+      day: -1,
+      mode: -1,
+      stoner: -1,
+      night: -1,
     }
+    //arranges the outputs in css
     if (this.state.ouput1 == "") {
       this.setState({output1: "You: " + input})
     } else if (this.state.output2 == "") {
@@ -136,12 +290,15 @@ class BobLogic extends React.Component {
         output4: "You: " + input
       })
     }
+    //goes through input and searches for command words
     let inputArr = input.split(" ")
     for (let i = 0;i<inputArr.length;i++) {
       if (inputArr[i] == "what's") {
         wordBank.whats = i
       } else if (inputArr[i] =="up") {
         wordBank.up = i
+      } else if (inputArr[i] =="at") {
+        wordBank.at = i
       } else if (inputArr[i] =="go") {
         wordBank.go = i
       } else if (inputArr[i] =="to") {
@@ -182,7 +339,7 @@ class BobLogic extends React.Component {
         wordBank.image = i
       } else if (inputArr[i] =="Images") {
         wordBank.images = i
-      }  else if (inputArr[i] =="YouTube") {
+      }  else if (inputArr[i] =="YouTube" || inputArr[i]=="youtube") {
         wordBank.youtube = i
       } else if (inputArr[i] =="translate") {
         wordBank.translate = i
@@ -208,14 +365,122 @@ class BobLogic extends React.Component {
         wordBank.read = i
       } else if (inputArr[i] =="delete") {
         wordBank.delete = i
-      } else if (inputArr[i] =="note") {
+      } else if (inputArr[i] =="note" || inputArr[i] =="Note") {
         wordBank.note = i
+      } else if (inputArr[i] =="remind" || inputArr[i] =="Remind") {
+        wordBank.remind = i
+      }  else if (inputArr[i] =="me") {
+        wordBank.me = i
+      } else if (inputArr[i] =="turn" || inputArr[i] == "Turn") {
+        wordBank.turn = i
+      } else if (inputArr[i] =="light" || inputArr[i] == "lights" || inputArr[i] == "Lights") {
+        wordBank.light = i
+      } else if (inputArr[i] =="on") {
+        wordBank.on = i
+      } else if (inputArr[i] =="off") {
+        wordBank.off = i
+      } else if (inputArr[i] =="red") {
+        wordBank.red = i
+      } else if (inputArr[i] =="blue") {
+        wordBank.blue = i
+      } else if (inputArr[i] =="gold") {
+        wordBank.gold = i
+      } else if (inputArr[i] =="green") {
+        wordBank.green = i
+      } else if (inputArr[i] =="pink") {
+        wordBank.pink = i
+      } else if (inputArr[i] =="one" || inputArr[i] =="1") {
+        wordBank.one = i
+      } else if (inputArr[i] =="two" || inputArr[i] =="2") {
+        wordBank.two = i
+      } else if (inputArr[i] =="three" || inputArr[i] =="3") {
+        wordBank.three = i
+      } else if (inputArr[i] =="four" || inputArr[i] =="4") {
+        wordBank.four = i
+      } else if (inputArr[i] =="brightness") {
+        wordBank.brightness = i
+      } else if (inputArr[i] =="full") {
+        wordBank.full = i
+      } else if (inputArr[i] =="half") {
+        wordBank.half = i
+      } else if (inputArr[i] == "projects") {
+        wordBank.projects = i
+      }  else if (inputArr[i] == "day") {
+        wordBank.day = i
       }
+      else if (inputArr[i] == "mode") {
+        wordBank.mode = i
+      }
+      else if (inputArr[i] == "stoner") {
+        wordBank.stoner = i
+      }
+      else if (inputArr[i] == "night") {
+        wordBank.night = i
+      } else if (inputArr[i] == "good") {
+        wordBank.good = i
+      } else if (inputArr[i] == "morning") {
+        wordBank.morning = i
+      }
+
     }
 
+    if (wordBank.good > -1 && wordBank.morning > -1) {
+      this.bobResponseToList("Good Morning! Get some Caffeine in you and read something!")
+      this.generateResponse("turn the lights to day mode")
+      return
+    }
 
+    if (wordBank.turn > -1 && wordBank.light > -1 && wordBank.mode > -1 ) {
+      if (wordBank.day == wordBank.mode -1) {
+        console.log("day mode!")
+        let command = {
+          on: true,
+          bri: 254,
+          hue: 6500
+        }
+        let command2 = {
+          on: true,
+          hue: 0,
+          bri:254,
+        }
+        user.setLightState(1, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(2, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(3, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(4, command2).then(data => {
+          console.log("horray!")
+        })
+        this.bobResponseToList("Day mode activated.")
+      } else if (wordBank.night == wordBank.mode - 1 || wordBank.stoner == wordBank.mode - 1) {
+        let command = {
+          on: true,
+          bri: 254,
+          hue: 54440,
+        }
+        user.setLightState(1, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(2, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(3, command).then(data => {
+          console.log("horray!")
+        })
+        user.setLightState(4, command).then(data => {
+          console.log("horray!")
+        })
+        this.bobResponseToList("Night mode activated.")
+      }
+    }
     if (wordBank.whats > -1 && wordBank.up > -1 && wordBank.up > wordBank.whats) {
-      console.log("salutations")
+      console.log(this.state)
+      this.setState({isProjectDisplay: true})
+      this.processTodoList()
       this.bobResponseToList("salutations!")
     }
 
@@ -238,6 +503,7 @@ class BobLogic extends React.Component {
       }
     }
 
+    //opens website, checks from list of preloaded ones but will go to whatever domain the user says/types
      else if (wordBank.go > -1 && wordBank.to > -1 && wordBank.to > wordBank.go) {
       let siteToGoTo = "null"
       if (inputArr.length > 2) {
@@ -252,8 +518,10 @@ class BobLogic extends React.Component {
       else if (siteToGoTo == "email") {
         this.bobResponseToList("Let's check on your email. . .")
         this.openInNewTab("https://mail.google.com/mail/u/1/#inbox")
-      }
-      else if (siteToGoTo == "theremotelearningschedule") {
+      } else if (siteToGoTo == "youtube" || siteToGoTo == "YouTube") {
+        this.bobResponseToList("Let's go to youtube. . .")
+        this.openInNewTab("https://youtube.com")
+      }else if (siteToGoTo == "theremotelearningschedule") {
         this.bobResponseToList("Going to the remote learning schedule!")
         this.openInNewTab("https://my.nuevaschool.org/base.php?q__=JLNLQlfm%2BSVCgb3sDMlf5po%2FHyFBO%2BOOt%2BQmAVFdsSC9NsvszErxahEhBEqCEsCD")
       }else if (siteToGoTo == "piskelapp") {
@@ -265,17 +533,19 @@ class BobLogic extends React.Component {
       } else if (siteToGoTo == "mycalendar") {
         this.bobResponseToList("going to your calendar!")
         this.openInNewTab("https://calendar.google.com/calendar/r")
-      } else {
+      } else if (siteToGoTo == "drive") {
+        this.bobResponseToList("going to drive")
+        this.openInNewTab("https://drive.google.com")
+      }else {
         this.bobResponseToList("let's go to that website")
         this.openInNewTab("https://" + siteToGoTo)
       }
     }
 
     else if (wordBank.what > -1 && wordBank.my > -1 && wordBank.name > -1 || wordBank.whats > -1 && wordBank.my > -1 && wordBank.name > -1) {
-      console.log(this.state.account.meta.notes)
-      this.bobResponseToList(this.state.account.meta.notes)
+      this.bobResponseToList(this.state.account.username)
     }
-
+    //looks something up on google, youtube, or google images
     else if (wordBank.lookup > -1 || wordBank.look > -1 && wordBank.up > -1) {
       if (wordBank.youtube > -1) {
         inputArr.shift()
@@ -305,7 +575,7 @@ class BobLogic extends React.Component {
       this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
       }
     }
-
+    // search for image, youtube video, or the web
     else if (wordBank.search > -1) {
       console.log(wordBank)
       if (wordBank.youtube > -1) {
@@ -337,6 +607,7 @@ class BobLogic extends React.Component {
     }
   }
 
+  //translates to/from spanish or other languages
   else if (wordBank.translate > -1) {
     if (wordBank.spanish > -1) {
       inputArr.shift()
@@ -350,27 +621,28 @@ class BobLogic extends React.Component {
     }
   }
 
+  //opens up conjugation table for spanish verbs
    else if (wordBank.conjugate > -1) {
     this.bobResponseToList("conjugating")
     inputArr.shift()
     this.openInNewTab("https://www.spanishdict.com/conjugate/" + inputArr.join("%20"))
   }
-
+  //outputs the input
   else if (wordBank.say > -1) {
     inputArr.shift()
     this.bobResponseToList(inputArr.join(" "))
   }
-
+  //looks up the definition of a ward
   else if (wordBank.define > -1) {
     this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
     console.log("define")
   }
-
+  //finds synonyms for words
   else if (wordBank.synonym > -1) {
     this.openInNewTab("https://www.google.com/search?q=" + inputArr.join("+"))
     console.log("synonym")
   }
-
+  //sets a tiemr for a designamted amount of time
    else if (wordBank.set > -1 && wordBank.timer > -1) {
     if (wordBank.set < wordBank.timer && wordBank.for > -1 && wordBank.for > wordBank.timer) {
       inputArr.shift()
@@ -390,6 +662,7 @@ class BobLogic extends React.Component {
       }
         this.setState({isTimer: true})
         let _this = this
+        this.bobResponseToList("starting timer. . .")
         setTimeout(function() {_this.renderTimer()},50)
         let timerCountdown = setInterval(function() {_this.decreaseTimer()},1000)
         let timeToMilli = (this.state.timerHours * 3600000) + (this.state.timerMinutes * 60000) + (this.state.timerSeconds * 1000)
@@ -403,7 +676,7 @@ class BobLogic extends React.Component {
       this.bobResponseToList("that is the improper way to set up a timer, please say 'set a timer for ________'")
     }
   }
-
+  //if logged in, adds note to account
   else if (wordBank.add > -1 && wordBank.to > -1 && wordBank.notes > -1) {
     inputArr.shift()
     inputArr.pop()
@@ -421,6 +694,8 @@ class BobLogic extends React.Component {
           console.log(newNotes)
           newNotes.push(inputArr.join(" "))
         }
+        this.bobResponseToList("Adding note. . .")
+
         fetch("http://localhost:8080/addNoteToAccount", {
           method: "put",
           headers: {'Content-Type': 'application/json'},
@@ -433,7 +708,7 @@ class BobLogic extends React.Component {
       this.bobResponseToList("You must be signed in to make a note")
     }
   }
-
+  //gets notes from account, if logged in
   else if (wordBank.read > -1 && wordBank.notes > -1) {
     fetch("http://localhost:8080/readNotes", {
       method: "put",
@@ -443,7 +718,7 @@ class BobLogic extends React.Component {
     .then(res => res.text())
     .then(body => this.displayNotes(body))
   }
-
+  //deletes note from account if logged in
   else if (wordBank.delete > -1 && wordBank.note > -1) {
     inputArr.shift()
     inputArr.shift()
@@ -459,6 +734,8 @@ class BobLogic extends React.Component {
       }
     }
     console.log(newNotes)
+    this.bobResponseToList("Deleting that note...")
+
     fetch("http://localhost:8080/addNoteToAccount", {
       method: "put",
       headers: {'Content-Type': 'application/json'},
@@ -466,6 +743,120 @@ class BobLogic extends React.Component {
     })
     .then(res => res.text())
     .then(body => this.updateAccount(body))
+  }
+  //doesn't work yet
+  else if (wordBank.remind > -1 && wordBank.me > -1 && wordBank.at > -1) {
+    console.log("hello!")
+    inputArr.shift()
+    inputArr.shift()
+    inputArr.shift()
+    let newArr = inputArr.join(" ").split("at")
+    let message = newArr[0]
+    let time = newArr[1]
+    let currentTime = new Date()
+    if (time.substr(3,1) == ":") {
+          console.log(parseInt(time.split(":")[0]))
+        this.setState({reminderHour: parseInt(time.split(":")[0])})
+          console.log(this.state)
+    }
+    console.log(this.state)
+    if (this.state.reminderHour < currentTime.getHours()) {
+          console.log("sup hoe")
+          let fixedHour = this.state.reminderHour + 12
+          console.log(fixedHour)
+    }
+    let reminderTimeInMilli = new Date(currentTime.getFullYear(),currentTime.getMonth(),currentTime.getDate(),this.state.reminderHour,this.state.reminderMinute,0,0)
+    console.log(this.state.reminderHour,this.state.reminderMinute)
+    this.bobResponseToList(reminderTimeInMilli)
+    return
+
+  }
+ //changes the lights in my room
+  else if (wordBank.turn > -1 && wordBank.light > -1) {
+    let lightToChange = 5
+    let command = {}
+    if (wordBank.one > -1) {
+      lightToChange = 1
+    } else if (wordBank.two > -1) {
+      lightToChange = 2
+    }  else if (wordBank.three > -1) {
+      lightToChange = 3
+    }  else if (wordBank.four > -1) {
+      lightToChange = 4
+    }
+    if (wordBank.on > -1) {
+      command.on = true
+      this.bobResponseToList("let there be light")
+
+    }
+    if (wordBank.off > -1) {
+      command.on = false
+    }
+    if (wordBank.gold > -1) {
+      command.hue = 6500
+    }
+    if (wordBank.red > -1) {
+      command.hue = 0
+      this.bobResponseToList("turning the light. . . cardinal")
+
+    }
+    if (wordBank.brightness > -1) {
+      if (wordBank.full > -1) {
+        command.bri = 254
+      }
+      if (wordBank.half > -1) {
+        command.bri = 127
+
+      }
+    }
+    if (lightToChange == 5) {
+      user.setLightState(1, command).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(2, command).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(3, command).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(4, command).then(data => {
+        console.log("horray!")
+      })
+    } else {
+    user.setLightState(lightToChange, command).then(data => {
+      console.log("horray!")
+    })
+  };
+
+  }
+
+  else if (wordBank.add > -1 && wordBank.to > -1 && wordBank.projects > -1) {
+    inputArr.shift()
+    inputArr.pop()
+    inputArr.pop()
+    if (this.state.account.username != "not logged in") {
+      let currentProjects = this.state.account.meta.projects
+      currentProjects.push(inputArr.join(" "))
+      this.setState({account: {
+        username: this.state.account.username,
+        meta: {
+          favorites: this.state.account.favorites,
+          notes: this.state.account.notes,
+          projects: currentProjects,
+          commands: this.state.account.commands,
+        }
+      }})
+      fetch("http://localhost:8080/updateAccount", {
+        method: "put",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify([this.state.account.username,this.state.account])
+      })
+      .then(res => res.text())
+      this.bobResponseToList("added " + inputArr.join(" ") + " to projects")
+    } else {
+      this.bobResponseToList("You must be signed in to create a project")
+    }
+
   }
 
   else {
@@ -476,10 +867,12 @@ class BobLogic extends React.Component {
     }
     console.log(inputArr)
 }
+
   displayNotes(notes) {
     this.bobResponseToList(this.state.account.meta.notes.join(", "))
   }
   updateAccount(body) {
+    //called after account is loaded from database or updated, sets the account in Bob's state to your account
     console.log("updating account")
     let newAcnt = JSON.parse(body)
     this.setState({account: newAcnt})
@@ -502,6 +895,30 @@ class BobLogic extends React.Component {
     } else {
       this.setState({isTimer: false})
       this.bobResponseToList('Timer complete!')
+      user.setLightState(2, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(1, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(3, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(4, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(2, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(1, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(3, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
+      user.setLightState(4, {alert: "select"}).then(data => {
+        console.log("horray!")
+      })
       let timerPlayer = new Audio(Alarm)
       timerPlayer.play()
     }
@@ -523,12 +940,15 @@ class BobLogic extends React.Component {
     }
 
   componentDidMount() {
+    //setup for Annyang (voice library)
+    this.processTodoList.bind(this)
     var commands = {
       'hey bob *input': this.generateResponse.bind(this),
     }
     annyang.addCommands(commands);
     annyang.addCallback('soundstart', function() {
       console.log('sound detected');
+
     });
     annyang.addCallback('result', function() {
       console.log('sound stopped');
@@ -609,10 +1029,75 @@ class BobLogic extends React.Component {
     .then(res => res.text())
     .then(body => this.checkSignIn(body))
   }
+  renderProgress(todo) {
+    console.log(todo)
+    let renderList = []
+    for (let i=0;i<this.state.currentProject.progress.length; i+=2) {
+      if (this.state.currentProject.progress[i] === todo) {
+        for (let k=0;k<this.state.currentProject.progress[i+1].length;k++) {
+          console.log("hey!")
+          renderList.push(
+            <Form key={`${i}progform-${k}`}>
+              <Form.Check
+                custom
+                type='checkbox'
+                key={`${i}progcheckbox-${k}`}
+                id={`${i}progcheckbox-${k}`}
+                label={""}
+                />
+              <p key={`${i}progtext-${k}`} className="todoItem">{this.state.currentProject.progress[i+1][k]}</p>
+            </Form>
+          )
+        }
+      }
+    }
+    this.setState({
+      currentProject: {
+        title: this.state.currentProject.title,
+        time: this.state.currentProject.time,
+        todo: this.state.currentProject.todo,
+        todoRender: this.state.currentProject.todoRender,
+        progress: this.state.currentProject.progress,
+        progressRender: renderList
+      }
+    })
+  }
+  processTodoList() {
+    let todoList = []
+    console.log(this.state.currentProject.todo)
+    for (let i=0;i<this.state.currentProject.todo.length;i++) {
+      todoList.push(
+        <Form key={`form-${i}`}>
+         {['checkbox'].map((type) => (
+           <Form.Check
+            custom
+              type={type}
+              key={`checkbox=${i}`}
+              id={`checkbox-${i}`}
+              label={""}
+           />
+         ))}
+         <p key={`text-${i}`} className="todoItem"  onClick={this.renderProgress.bind(this,this.state.currentProject.todo[i])}>{this.state.currentProject.todo[i]}</p>
+        </Form>
+
+      )
+    }
+    console.log(todoList)
+    this.setState({
+      currentProject: {
+        title: this.state.currentProject.title,
+        time: this.state.currentProject.time,
+        todo: this.state.currentProject.todo,
+        todoRender: todoList,
+        progress: this.state.currentProject.progress,
+        progressRender: this.state.currentProject.progressRedner
+      }
+    })
+  }
   render() {
     return(
       <>
-      <div id="output-box">
+      <div id={this.state.isProjectDisplay ? 'output-box-2' : 'output-box'}>
         <div id="output">
           <div id="output">{this.state.output1}</div>
           <div id="output">{this.state.output2}</div>
@@ -638,6 +1123,17 @@ class BobLogic extends React.Component {
           <Button id="verify-sign-in-button" variant="info" onClick={this.signInButtonOnClick.bind(this)}>Sign in!</Button>
           <p id="needAccount"> need an account? </p>
           <Button id="sign-up-button" variant="secondary" onClick={this.showSignUpPopup.bind(this)}>sign up</Button>
+        </div>
+        <div className={this.state.isProjectDisplay ? 'show' : 'hide'} id="pop-up-project">
+          <h1 id="project-title">{this.state.currentProject.title}</h1>
+          <p id="proj-hours-text"> hours worked: </p>
+          <div id="proj-hours"> {this.state.currentProject.time} </div>
+          <hr></hr>
+          <p id="todo-text">Todo: </p>
+          <p id="progress-text">Progress: </p>
+          <div id="proj-line"></div>
+          <div id="todo">{this.state.currentProject.todoRender} </div>
+          <div id="progress"> {this.state.currentProject.progressRender}</div>
         </div>
         <div className={this.state.isSignUp ? 'show' : 'hide'}id="pop-up-container2">
           <h1 className={this.state.isSignUp ? 'show' : 'hide'} id="pop-up-title">Sign Up</h1>

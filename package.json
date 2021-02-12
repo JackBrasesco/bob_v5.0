@@ -11,6 +11,7 @@
     "brew": "0.0.8",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "jshue": "^2.1.1",
     "mongod": "^2.0.0",
     "mongoose": "^5.9.10",
     "react": "^16.13.1",
@@ -20,7 +21,9 @@
     "react-helmet": "^5.2.1",
     "react-native-sound": "^0.11.0",
     "react-native-track-player": "^1.2.3",
+    "react-native-tts": "^3.1.1",
     "react-scripts": "^3.4.1",
+    "speak-tts": "^2.0.8",
     "validator": "^13.0.0"
   },
   "scripts": {

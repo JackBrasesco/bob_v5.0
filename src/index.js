@@ -7,7 +7,8 @@ import App from './App';
 ReactDOM.render(
   <>
   <Helmet>
-    <title> Bot Bob v5.0 </title>
+    <title> Bob </title>
+    <script src="./jshue.js" type = "text/babel"></script>
   </Helmet>
   <App />
   </>,

@@ -17,6 +17,16 @@ app.put('/readNotes', function(req,res,next) {
   })
 })
 
+app.put('/updateAccount', function(req,res,next) {
+  let usernamep = req.body[0]
+  let updatedAcnt = req.body[1]
+  console.log(updatedAcnt)
+  async function updateAccount() {
+    let loadAcnt = await AcntModel.findOneAndUpdate({username: usernamep}, updatedAccount,{new: true})
+  }
+  updateAccount()
+  .then(acnt => res.send(acnt))
+})
 app.put('/addNoteToAccount', function(req,res,next) {
   console.log("request recieved!" + req.body)
   let usernamep = req.body[0]
@@ -25,6 +35,21 @@ app.put('/addNoteToAccount', function(req,res,next) {
   console.log(newNotes)
   async function updateAccount() {
     let loadAcnt = await AcntModel.findOneAndUpdate({username: usernamep},{meta: {notes: newNotes}},{new: true})
+    return loadAcnt
+  }
+  updateAccount()
+  .then(acnt => res.send(acnt))
+})
+
+app.put('/addProjectToAccount', function(req,res,next) {
+  console.log("request recieved!" + req.body)
+  let usernamep = req.body[0]
+  req.body.shift()
+  let newProjects = req.body
+  console.log(newProjects)
+  async function updateAccount() {
+    let loadAcnt = await AcntModel.findOneAndUpdate({username: usernamep},{meta: {projects: newProjects}},{new: true})
+    console.log(loadAcnt)
     return loadAcnt
   }
   updateAccount()

@@ -20,6 +20,17 @@ body {
   background-color: white;
   margin-top: -75px;
 }
+#output-box-2 {
+  border: 1px lightgrey solid;
+  box-shadow: 0 0 1em 1em #ccc;
+  position: relative;
+  top: 150px;
+  height: 600px;
+  background-color: white;
+  margin-top: -75px;
+  margin-left: 400px;
+  width: 1000px;
+}
 #input {
   position: absolute;
   padding: 10px;
@@ -123,6 +134,67 @@ body {
 #pop-up-text-timer {
   margin-left: 15px;
   font-size: 65px;
+}
+#pop-up-text-reminder {
+  margin-left: 5px;
+}
+#pop-up-project {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  margin-left: -850px;
+  margin-top: -50px;
+  background-color: white;
+  border: 1px lightgrey solid;
+  box-shadow: 0 0 1em 1em #ccc;
+
+}
+#project-title {
+  margin-left: 15px;
+}
+#proj-hours-text {
+  margin-left: 5px;
+}
+#proj-hours {
+  margin-left: 5px;
+}
+#todo-text {
+  margin-left: 5px;
+  margin-top: 15px;
+  display: inline-block;
+}
+#todo {
+  margin-left: 5px;
+  margin-top: -590px;
+
+}
+#progress-text {
+  margin-left: 5px;
+  margin-top: 15px;
+  display: inline-block;
+  margin-left: 300px;
+}
+#progress {
+  margin-left: 325px;
+  margin-top: -100px
+}
+#proj-line {
+  width: 3px;
+  background-color: black;
+  height: 665px;
+  margin-left: 300px;
+  margin-top: -72px;
+}
+hr {
+    width: 800px;
+    background-color: black;
+    height: 8px;
+}
+.todoItem {
+  font-size: 14px;
+  margin-left: 20px;
+  margin-top: -25px;
+  position: absolute;
 }
 .show {
   visibility: visible;
